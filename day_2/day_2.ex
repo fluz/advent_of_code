@@ -4,21 +4,23 @@ defmodule Day2 do
         {:ok, contents} ->
           contents
           |> String.split("\n", trim: true )
-          |> driveSubmarine(0, 0)
+          |> driveSubmarine(0, 0, 0)
         {:error, :enoent} ->
           IO.puts("Not able to open the file.")
       end
     end
 
-    def driveSubmarine(commands, depth, position) do
+    def driveSubmarine(commands, depth, position, aim) do
 
       case commands do
         [] -> depth * position
         [command | tail] ->
-          case command do
-            "forward " <> l -> driveSubmarine(tail,depth, position + String.to_integer(l))
-            "up " <> u -> driveSubmarine(tail, depth - String.to_integer(u), position)
-            "down " <> d -> driveSubmarine(tail, depth + String.to_integer(d), position)
+          [dir , val | _] = command |> String.split(" ")
+          val = String.to_integer(val)
+          case dir do
+            "forward" -> driveSubmarine(tail, depth + (aim * val), position + val, aim)
+            "up" -> driveSubmarine(tail, depth, position, aim - val)
+            "down" -> driveSubmarine(tail, depth, position, aim + val)
           end
       end
     end
