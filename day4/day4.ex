@@ -2,7 +2,7 @@ defmodule Day4 do
 
   def main do
     {ds, bs} = readInput("./day4/input.txt")
-    updateDraws(ds, bs)
+    updateDraws(ds, bs, [])
   end
 
   def readInput(filename) do
@@ -31,14 +31,19 @@ defmodule Day4 do
 
   end
 
-  def updateDraws(xs, ys) do
+  def updateDraws(xs, ys, zs) do
     case xs do
-      [] -> ys
+      [] -> Enum.reverse(zs) |> Enum.at(0)
       [x | xs_] ->
-        ys = updateBoards(ys, x)
-        case hasWinner(ys) do
-          {true, total} -> total * x
-          {false, _} -> updateDraws(xs_, ys)
+        if Enum.empty?(ys) do
+          Enum.reverse(zs) |> Enum.at(0)
+        else
+          ys = updateBoards(ys, x)
+          case hasWinner(ys, [], []) do
+            {[], _} -> updateDraws(xs_, ys, zs)
+            {total, bs} ->
+              updateDraws(xs_, bs, zs ++ Enum.map(total, fn t -> t * x end))
+          end
         end
     end
   end
@@ -62,14 +67,14 @@ defmodule Day4 do
     end)
   end
 
-  def hasWinner(xs) do
+  def hasWinner(xs, prev_xs, result) do
     case xs do
-      [] -> {false, nil}
+      [] -> {result, prev_xs}
       [x| xs_] ->
         if isBoardWinner(x) do
-          {true, sumBoard(x)}
+          hasWinner(xs_, prev_xs, [sumBoard(x)] ++ result)
         else
-          hasWinner(xs_)
+          hasWinner(xs_, prev_xs ++ [x], result)
         end
     end
   end
@@ -96,6 +101,5 @@ defmodule Day4 do
   def sumList(xs) do
     xs |> Enum.map(fn x -> Enum.sum(x) end)
   end
-
 
 end
