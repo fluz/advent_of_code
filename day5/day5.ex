@@ -11,6 +11,9 @@ defmodule Day5 do
     diagram = points
     |> addHorLines(diagram)
 
+    diagram = points
+    |> addDiagLines(diagram)
+
     diagram
     |> Map.filter(fn {_,value} -> (value > 1) end)
     |> map_size()
@@ -57,4 +60,29 @@ defmodule Day5 do
       end)
     end)
   end
+
+  def addDiagLines(ds, mp) do
+    ds
+    |> Enum.filter(fn p -> isDiagonal(p[:x1],p[:y1],p[:x2],p[:y2]) end)
+    |> Enum.reduce(mp, fn (p, acc) ->
+      {x_min, x_max} = Enum.min_max([p[:x1],p[:x2]])
+      factor_x = if (p[:x1] == x_min) do 1 else -1 end
+      {y_min, _} = Enum.min_max([p[:y1],p[:y2]])
+      factor_y = if (p[:y1] == y_min) do 1 else -1 end
+      n = x_max - x_min
+      Enum.reduce(0..n, acc, fn (step, bcc) ->
+        x = p[:x1] + step * factor_x
+        y = p[:y1] + step * factor_y
+        Map.update(bcc, "#{x},#{y}", 1, fn c -> c + 1 end)
+      end)
+    end)
+  end
+
+  # Helper function
+  def isDiagonal(x1,y1,x2,y2) do
+    {min_x, max_x} = Enum.min_max([x1,x2])
+    {min_y, max_y} = Enum.min_max([y1,y2])
+    (max_x - min_x == max_y - min_y)
+  end
+
 end
