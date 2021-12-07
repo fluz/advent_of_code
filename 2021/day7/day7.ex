@@ -1,11 +1,10 @@
 defmodule Day7 do
 
   def main do
-    p0 = readInput("./day7/input_test.txt")
+    p0 = readInput("./day7/input.txt")
 
     p0
     |> allFuelPossibilities()
-    # |> sumPopulation()
   end
 
   def readInput(filename) do
@@ -37,15 +36,14 @@ defmodule Day7 do
   def fuelConsuption(xs, d) do
     xs
     |> Enum.reduce([], fn ({k, v}, acc) ->
-      acc ++ [abs(d - k) * v]
+      acc ++ [gaussianSum(d,k) * v]
     end)
     |> Enum.sum()
   end
 
-  # # Helper function
-  # def sumPopulation(xs) do
-  #   xs
-  #   |> Enum.reduce(0, fn({_k, v}, acc) -> v + acc end)
-  # end
-
+  # Helper function
+  def gaussianSum(x0,xf) do
+    {min, max} = Enum.min_max([x0,xf])
+    div((max + 1 - min) * abs(max  - min), 2)
+  end
 end
